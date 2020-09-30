@@ -6,15 +6,25 @@ A presente pesquisa se dedica a responder a seguinte pergunta: o preço médio e
 
 ## Lista de variáveis
 
+| **Variável** | **Descrição** |
+| --- | --- |
+| Data da Compra | Variável quantitativa, expressa a data da compra. **Exemplo** : 22 Out 2019 |
+| Descrição do Objeto | Variável qualitativa, nominal, descreve o bem ou serviço comprado. **Exemplo** : Álcool etílico |
+| Unidade | Variável qualitativa, categórica, expressa a unidade de fornecimento do item comprado. **Exemplo** : Frasco 500 ml |
+| Valor Unitário | Variável quantitativa, expressa o valor em reais (R$) da unidade de fornecimento comprada. **Exemplo** : R$ 4,52 |
+| Quantidade | Variável quantitativa, expressa a quantidade de unidades de fornecimento compradas. **Exemplo** : 250 unidades |
+| Período da Pandemia | Variável qualitativa, categórica, com duas categorias: 0 – período anterior à pandemia; 1- período da pandemia. |
+
 ## Lista de arquivos
 
 | **Arquivo** | **Descrição** |
 | --- | --- |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
+| df_consultanpan.csv | Compras de álcool em gel, no Distrito Federal, realizadas **antes** da pandemia |
+| df_consultapan.csv | Compras de álcool em gel, no Distrito Federal, realizadas **durante** a pandemia |
+| df_compras.csv | Consolidação dos dois arquivos anteriores |
+| ValorAlcoolGel.Rmd | Código R para a geração dos resultados obtidos |
+| ValorAlcoolGel.html | Resultado da execução do arquivos ValorAlcoolGel.Rmd |
+
 
 ## Publicação 
 
