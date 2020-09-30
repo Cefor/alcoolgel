@@ -23,7 +23,7 @@ A presente pesquisa se dedica a responder a seguinte pergunta: o preço médio e
 | df_consultapan.csv | Compras de álcool em gel, no Distrito Federal, realizadas **durante** a pandemia |
 | df_compras.csv | Consolidação dos dois arquivos anteriores |
 | ValorAlcoolGel.Rmd | Código R para a geração dos resultados obtidos |
-| [ValorAlcoolGel.html](http://htmlpreview.github.com/?https://github.com/Cefor/alcoolgel/blob/master/AlcoolGel.html) | Resultado da execução do arquivos ValorAlcoolGel.Rmd |
+| [ValorAlcoolGel.html](http://htmlpreview.github.com/?https://github.com/Cefor/alcoolgel/blob/master/ValorAlcoolGel.html) | Resultado da execução do arquivos ValorAlcoolGel.Rmd |
 
 ## Publicação 
 
