@@ -1,0 +1,239 @@
+---
+title: "Alcool Gel"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Leitura dos dados de compras
+```{r}
+library(stringr)
+
+#df1 <- read.csv2("df_consultanpan.csv")
+#df2 <- read.csv2("df_consultapan.csv")
+
+#dfag <- rbind(df1, df2)
+#dfag <- dfag[, 4:26]
+
+#write.csv2(dfag, "df_compras.csv")
+
+# compras df
+dfag <- read.csv2("df_compras.csv")
+
+dfag <- dfag[, c("dia","ano","mes","desc_material_serv",
+                 "unidade_fornecimento","valor_unitario",
+                 "qtde_ofertada")]
+
+# prepara campo data da compra
+dfag$data_compra <- as.character(dfag$dia)
+dfag$data_compra <- sub(" ","-",dfag$data_compra)
+dfag$data_compra <- sub(" ","-",dfag$data_compra)
+mes <- c("Jan","Fev","Mar","Abr","Mai","Jun",
+         "Jul","Ago","Set","Out","Nov","Dez")
+for(i in 1:12) dfag$data_compra <- sub(mes[i],i,dfag$data_compra)
+dfag$data_compra <- as.Date(dfag$data_compra,  format = "%d-%m-%Y")
+
+# indicador pandemia a partir de 11/Mar/2020
+dfag$flag_pandemia <- dfag$data_compra >= "2020-03-11"
+dfag$ind_pandemia[dfag$flag_pandemia] <- "Sim"
+dfag$ind_pandemia[dfag$flag_pandemia == "FALSE"] <- "Não"
+
+# mes/ano
+dfag$anomes <- str_sub(as.character(dfag$data_compra),1,7)
+
+# ajusta nome das variaveis
+dfag <- dfag[ , c("data_compra", "ano", "desc_material_serv",
+                  "unidade_fornecimento", "valor_unitario", "qtde_ofertada",
+                  "ind_pandemia", "anomes") ]
+
+names(dfag) <- c("data_compra", "ano", "descricao_objeto", "unidade",
+                 "valor_unitario", "quantidade", "ind_pandemia", 
+                 "anomes_compra")
+
+# indice de inflacao mensal - FIPE / IPC
+ipc <- read.csv2("pesquisaFIPE_IPC.csv", stringsAsFactors = FALSE)
+ipc$Saude <- as.numeric(ipc$Saude)
+ipc$Geral <- as.numeric(ipc$Geral)
+mes <- str_to_lower(mes)
+ipc$anomes <- NA
+for(i in 1:12) ipc$anomes[ipc$Mes == mes[i]] <- str_sub(paste0("0",i),-2,-1)
+ipc$anomes <- paste0(ipc$Ano,"-",ipc$anomes)
+ipc <- ipc[order(ipc$anomes, decreasing = TRUE),]
+
+# indice acumulado
+# i = {(1+i1)*(1+i2)*(1+i3)...(1*in)-1}
+
+indacum <- function(df_ipc, anomes_compra, anomes_correcao){
+  # acumula indice da data da compra ate o mes anterior a anomes_correcao
+  df_ipc <- df_ipc[df_ipc$anomes >= anomes_compra &
+                   df_ipc$anomes < anomes_correcao, ]  
+  prod(df_ipc[,2]+1)-1
+}
+
+# atualizacao valores para 2020-06
+df_ipc <- ipc[,c("anomes", "Geral")]
+dfag$ind_acum <- NA
+anomes_correcao <- "2020-06"
+for(i in 1:nrow(dfag)){
+  dfag$ind_acum[i] <- indacum(df_ipc, dfag$anomes_compra[i], anomes_correcao)
+}
+dfag$valor_corrigido <- dfag$valor_unitario * (1 + dfag$ind_acum)
+
+
+# adiciona sufixo P em marco maior/igual 11
+dfag$anomes_compra[dfag$data_compra >= "2020-03-11" &
+                   dfag$data_compra <= "2020-03-31"] <-
+        paste0(dfag$anomes_compra[dfag$data_compra >= "2020-03-11" &
+                                  dfag$data_compra <= "2020-03-31"],"P")
+
+
+```
+
+
+## Graficos de Barras
+```{r}
+library(ggplot2)
+library(patchwork)
+
+# quantidade vs valor corrigido - mesano
+g1 <- ggplot(dfag, aes(x = anomes_compra, y = quantidade/1e6, 
+                 fill = factor(ind_pandemia))) + geom_col(position = "stack") +
+  theme(axis.text.x = element_text(angle=70, hjust=1, size = 10), axis.text.y = element_text(hjust=1, size = 10), axis.title.y = element_text(size = 11),
+        title = element_text(size = 10)) +
+  labs(title = "Frascos de alcool em gel (500 ml)",
+     x = "Ano-Mês",
+     y = "Quantidade comprada (milhões)",
+     fill = "Pandemia")
+g1
+
+
+
+dfag2 <- aggregate(valor_unitario ~ anomes_compra + ind_pandemia, 
+                   data=dfag, FUN=mean)
+
+g2 <- ggplot(dfag2, aes(x = anomes_compra, y = valor_unitario, 
+                 fill = factor(ind_pandemia))) + geom_col(position = "stack") + 
+  theme(axis.text.x = element_text(angle=70, hjust=1, size = 10), axis.text.y = element_text(hjust=1, size = 10), axis.title.y = element_text(size = 11),
+        title = element_text(size = 10)) +
+  labs(title = "",
+     x = "Ano-Mês",
+     y = "Valor Unitário Médio (R$)",
+     fill = "Pandemia")
+g2
+
+
+
+dfag3 <- aggregate(valor_corrigido ~ anomes_compra + ind_pandemia, 
+                   data=dfag, FUN=mean)
+
+g3 <- ggplot(dfag3, aes(x = anomes_compra, y = valor_corrigido, 
+                 fill = factor(ind_pandemia))) + geom_col(position = "stack") + 
+  theme(axis.text.x = element_text(angle=70, hjust=1, size = 10), axis.text.y = element_text(hjust=1, size = 10), axis.title.y = element_text(size = 11),
+        title = element_text(size = 10)) +
+  labs(title = "",
+     x = "Ano-Mês",
+     y = "Valor Corrigido Médio (R$)",
+     fill = "Pandemia")
+g3
+
+
+```
+
+
+## Figura 1
+```{r}
+library(gridExtra)
+
+gridExtra::grid.arrange(g1, g3, nrow = 2)
+```
+
+
+## Histograma e teste de normalidade - valor unitario
+```{r}
+hist(dfag$valor_unitario[dfag$ind_pandemia != "Sim"])
+hist(dfag$valor_unitario[dfag$ind_pandemia == "Sim"])
+
+shapiro.test(dfag$valor_unitario[dfag$ind_pandemia != "Sim"])
+shapiro.test(dfag$valor_unitario[dfag$ind_pandemia == "Sim"])
+```
+
+## Histograma e teste de normalidade - valor corrigido
+```{r}
+hist(dfag$valor_corrigido[dfag$ind_pandemia != "Sim"])
+hist(dfag$valor_corrigido[dfag$ind_pandemia == "Sim"])
+
+shapiro.test(dfag$valor_corrigido[dfag$ind_pandemia != "Sim"])
+shapiro.test(dfag$valor_corrigido[dfag$ind_pandemia == "Sim"])
+```
+
+
+## Histograma e teste de normalidade - valor corrigido - sem outlier
+```{r}
+hist(dfag$valor_corrigido[dfag$ind_pandemia != "Sim" & dfag$quantidade < 1e6])
+hist(dfag$valor_corrigido[dfag$ind_pandemia == "Sim" & dfag$quantidade < 1e6])
+
+shapiro.test(dfag$valor_corrigido[dfag$ind_pandemia != "Sim" & dfag$quantidade < 1e6])
+shapiro.test(dfag$valor_corrigido[dfag$ind_pandemia == "Sim" & dfag$quantidade < 1e6])
+```
+
+
+
+## Medias - valor corrigido
+```{r}
+# tirando outlier
+mean(dfag[ dfag$ind_pandemia != "Sim" & dfag$quantidade != max(dfag$quantidade[dfag$ind_pandemia != "Sim"]), ]$valor_corrigido)
+
+# mantendo outlier
+# antes pandemia
+mean(dfag$valor_corrigido[dfag$ind_pandemia != "Sim"])
+# durante pandemia
+mean(dfag$valor_corrigido[dfag$ind_pandemia == "Sim"])
+# relacao
+mean(dfag$valor_corrigido[dfag$ind_pandemia == "Sim"])/mean(dfag$valor_corrigido[dfag$ind_pandemia != "Sim"])
+
+```
+
+
+## Histograma e teste de normalidade - quantidade comprada
+```{r}
+hist(dfag$quantidade[dfag$ind_pandemia != "Sim"])
+hist(dfag$quantidade[dfag$ind_pandemia == "Sim"])
+
+shapiro.test(dfag$quantidade[dfag$ind_pandemia != "Sim"])
+shapiro.test(dfag$quantidade[dfag$ind_pandemia == "Sim"])
+```
+
+## Medias - quantidade comprada
+```{r}
+# tirando outlier
+mean(dfag[ dfag$ind_pandemia != "Sim" & dfag$quantidade != max(dfag$quantidade[dfag$ind_pandemia != "Sim"]), ]$quantidade)
+
+# mantendo outlier
+# antes
+mean(dfag$quantidade[dfag$ind_pandemia != "Sim"])
+# durante
+mean(dfag$quantidade[dfag$ind_pandemia == "Sim"])
+# relacao
+mean(dfag$quantidade[dfag$ind_pandemia == "Sim"])/mean(dfag$quantidade[dfag$ind_pandemia != "Sim"])
+
+```
+
+
+## Teste de hipotese nao parametrico Mann-Whitney-Wilcoxon
+```{r}
+# teste de hipotese - 
+# http://www.r-tutor.com/elementary-statistics/non-parametric-methods/mann-whitney-wilcoxon-test
+
+# amostras independentes com tamanhos diferentes
+
+# valor corrigido
+wilcox.test(valor_corrigido ~ ind_pandemia, data = dfag)
+
+# quantidade
+wilcox.test(quantidade ~ ind_pandemia, data = dfag)
+
+```
+
+
