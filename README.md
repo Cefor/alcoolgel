@@ -24,6 +24,7 @@ A presente pesquisa se dedica a responder a seguinte pergunta: o preço médio e
 | df_compras.csv | Consolidação dos dois arquivos anteriores |
 | ValorAlcoolGel.Rmd | Código R para a geração dos resultados obtidos |
 | [ValorAlcoolGel.html](http://htmlpreview.github.com/?https://github.com/Cefor/alcoolgel/blob/master/ValorAlcoolGel.html) | Resultado da execução do arquivo ValorAlcoolGel.Rmd |
+| pesquisaFIPE_IPC.csv | Índice de Preços ao Consumidor – IPC |
 
 ## Publicação 
 
