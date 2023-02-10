@@ -28,7 +28,7 @@ A presente pesquisa se dedica a responder a seguinte pergunta: o preço médio e
 
 ## Publicação 
 
-Este estudo foi publicado [Revista Comunicação em Ciências da Saúde](https://revistaccs.escs.edu.br/index.php/comunicacaoemcienciasdasaude/article/view/764)
+Este estudo foi publicado na [Revista Comunicação em Ciências da Saúde](https://revistaccs.escs.edu.br/index.php/comunicacaoemcienciasdasaude/article/view/764)
 
 DOI: https://doi.org/10.51723/ccs.v31i03.764
 
