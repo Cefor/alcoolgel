@@ -28,5 +28,10 @@ A presente pesquisa se dedica a responder a seguinte pergunta: o preço médio e
 
 ## Publicação 
 
-Este estudo foi aceito para publicação na Revista Comunicação em Ciências da Saúde.
+Este estudo foi publicado [Revista Comunicação em Ciências da Saúde](https://revistaccs.escs.edu.br/index.php/comunicacaoemcienciasdasaude/article/view/764)
 
+DOI: https://doi.org/10.51723/ccs.v31i03.764
+
+## Grupo de Pesquisa
+
+Pesquisa realizada no âmbito do grupo [Ciência de Dados Aplicada ao Estudo do Poder Legislativo: abordagem computacional e métodos de análise](http://dgp.cnpq.br/dgp/espelhogrupo/9712095383739020)
